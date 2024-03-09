@@ -1,4 +1,4 @@
 import { createApp } from 'vue'
-import CurrencyConverter from './components/CurrencyConverter.vue'
+import App from './App.vue'
 
-createApp(CurrencyConverter).mount('#app')
+createApp(App).mount('#app')

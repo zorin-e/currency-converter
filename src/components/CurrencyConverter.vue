@@ -1,26 +1,40 @@
 <template>
   <div>
-    <input :class="$style.input" @input="valueHandler(($event.target as HTMLInputElement).value)" @keypress="press" v-model="value">EUR
+    <input
+      :class="$style.input"
+      @input="valueHandler(($event.target as HTMLInputElement).value)"
+      @keypress="press" v-model="value"
+    >EUR
   </div>
   <div>You will receive with bonus</div>
   <div>
-    <input :class="$style.input" @keyup="valueReceiveHandle" v-model="valueReceive" @keypress="press">USD
+    <input
+      :class="$style.input"
+      @input="valueReceiveHandle(($event.target as HTMLInputElement).value)"
+      v-model="valueReceive"
+      @keypress="press"
+    >USD
   </div>
+  {{ modelValue }}
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = withDefaults(
-  defineProps<Partial<{
-    modelValue: string;
-    rate: number;
-    bonusPercent: number;
-  }>>()
+  defineProps<
+    Partial<{
+      rate: number;
+      bonusPercent: number;
+    }>
+    & {
+      modelValue: number;
+    }
+  >()
   ,
   {
-    rate: 1.08,
-    bonusPercent: 23
+    rate: 1,
+    bonusPercent: 0
   }
 )
 
@@ -34,7 +48,11 @@ type BonusType = {
   percent: number;
 }
 
-const value = ref<string | number>(200)
+const emits = defineEmits<{
+  'update:modelValue': [value: number]
+}>()
+
+const value = ref<string | number>(0)
 const valueReceive = ref<string | number>(0)
 
 const convert = (value: number) => {
@@ -62,8 +80,7 @@ const press = (e: KeyboardEvent) => {
   if (!onlyDigitsAndDots.test(e.key)) e.preventDefault()
 }
 
-const valueReceiveHandle = (e: Event) => {
-  const _value = (e.target as HTMLInputElement).value
+const valueReceiveHandle = (_value: number | string) => {
   value.value = convertFrom({
     value: subtractBonus({value: Number(_value), percent: props.bonusPercent}),
     rate: props.rate
@@ -77,8 +94,11 @@ const valueHandler = (value: number | string) => {
   valueReceive.value = convertTo({ value: _value, rate: props.rate })
 }
 
-onMounted(() => {
-  valueHandler(value.value)
+watch(() => props.modelValue, (_value: number) => {
+  value.value = _value
+  valueHandler(_value)
+}, {
+  immediate: true
 })
 </script>
 
