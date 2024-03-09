@@ -95,6 +95,7 @@ const valueHandler = (value: number | string) => {
 }
 
 watch(() => props.modelValue, (_value: number) => {
+  emits('update:modelValue', _value)
   value.value = _value
   valueHandler(_value)
 }, {
