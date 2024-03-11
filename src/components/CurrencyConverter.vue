@@ -15,7 +15,6 @@
       @keypress="press"
     >USD
   </div>
-  {{ modelValue }}
 </template>
 
 <script setup lang="ts">
